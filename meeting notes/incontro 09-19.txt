@@ -1,0 +1,7 @@
+DUE-VDM
+
+Vengono letti i dati delle metriche da un modulo chiamato Analytics 
+di diversi DUE-VDC, vengono aggregati (media). L'output va scritto
+su file JSON in locale.
+Stessa architettura a demoni di DUE-VDC.
+
