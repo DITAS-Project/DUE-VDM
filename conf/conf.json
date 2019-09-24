@@ -1,0 +1,38 @@
+{
+	"connections": [
+		{
+			"host": "localhost",
+			"port": 9200
+		}
+	],
+	"availability": {
+		"queries": [
+			{
+				"query_content": "*", "update_interval": 60
+			},
+			{
+				"query_content": "*", "update_interval": 120
+			}
+		]
+	},
+	"throughput": {
+		"queries": [
+			{
+				"query_content": "*", "update_interval": 60
+			},
+			{
+				"query_content": "*", "update_interval": 120
+			}
+		]
+	},
+	"response_time": {
+		"queries": [
+			{
+				"query_content": "*", "update_interval": 60
+			},
+			{
+				"query_content": "*", "update_interval": 120
+			}
+		]
+	}
+}
