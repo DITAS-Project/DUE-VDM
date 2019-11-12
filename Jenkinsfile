@@ -60,7 +60,7 @@ pipeline {
         stage('Dredd API validation') {
             agent any
             steps {
-                // sh './jenkins/dredd/run-api-test.sh'
+                sh './jenkins/dredd/run-api-test.sh'
             }
         }
         stage('Production image creation') {
