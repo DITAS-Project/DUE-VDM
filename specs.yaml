@@ -14,7 +14,7 @@ info:
 # tags are used for organizing operations
 tags:
 - name: debug
-  description: Debug to check the status of the component
+  description: Check the status of the component
 
 paths:
   /debug/:
