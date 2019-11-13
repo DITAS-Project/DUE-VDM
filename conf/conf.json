@@ -1,14 +1,13 @@
 {
-	"connections": [
+	"connection":
 		{
 			"host": "0.0.0.0",
 			"port": 8080
-		}
-	],
+		},
 	"availability": {
 		"queries": [
 			{
-				"update_interval": 60
+				"update_interval": 5
 			},
 			{
 				"update_interval": 120
@@ -35,10 +34,5 @@
 			}
 		]
 	},
-	"monitoring_resouces": [
-		{
-			"infraID": "cloudsigma-deployment",
-			"methods": ["getAllValuesForBloodTestComponent"]
-		}
-	]
+	"blueprints_path": "tmp"
 }

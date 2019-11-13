@@ -2,24 +2,27 @@ import json
 import uuid
 from abc import ABC, abstractmethod
 import requests
+import os
 
 
 OUTPUT_PATH = 'aggregated_metrics.json'
+BP_ABSTRACT_PROPERTIES = 'ABSTRACT_PROPERTIES'
+BP_METHOD_ID = 'method_id'
+
+CONF_CONNECTION = 'connection'
+CONF_CONN_HOST = 'host'
+CONF_CONN_PORT = 'port'
+CONF_BLUEPRINT = 'blueprints_path'
 
 class Metric(ABC):
-    def __init__(self, conf_path, services_path):
+    def __init__(self, conf_path):
         with open(conf_path) as conf_file:
             conf_data = json.load(conf_file)
-        host = conf_data['connections']['host']
-        port = conf_data['connections']['port']
-        self.base = 'http://' + host + ':' + port + '/data-analytics/meter/'
+        host = conf_data[CONF_CONNECTION][CONF_CONN_HOST]
+        port = conf_data[CONF_CONNECTION][CONF_CONN_PORT]
+        self.base = 'http://' + host + ':' + str(port) + '/data-analytics/meter/'
         self.conf_data = conf_data
-        self.services_path = services_path
-
-    def read_services(self):
-        with open(self.services_path) as services_file:
-            services = json.load(services_file)
-        return services['services']
+        self.bp_path = conf_data[CONF_BLUEPRINT]
 
     def format_time_window(self, t0, t1):
         start_time = t0.strftime('%Y-%m-%dT%H:%M:%S')
@@ -44,7 +47,6 @@ class Metric(ABC):
         }
         return requests.get(path, params)
 
-
     def __format_key(self, bp_id, vdc_inst, request_id, operation_id):
         return bp_id + '-' + vdc_inst + '-' + request_id + '-' + operation_id
 
@@ -63,3 +65,16 @@ class Metric(ABC):
         # Se viene appeso il file json non sarà più valido quindi bisogna aprire il file se esiste e aggiungere una nuova entry
         with open(OUTPUT_PATH, 'w') as outfile:
             json.dump(body, outfile, indent=4)
+
+    def read_vdcs_from_file(self):
+        return os.listdir(self.bp_path)
+
+    def read_methods(self, vdc):
+        print('Detected methods for ' + vdc + ':')
+        with open(os.path.join(self.bp_path, vdc)) as file:
+            blueprint = json.load(file)
+        methods = []
+        for method in blueprint[BP_ABSTRACT_PROPERTIES]:
+            methods.append(method[BP_METHOD_ID])
+        print(methods)
+        return methods
