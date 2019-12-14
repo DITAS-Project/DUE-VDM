@@ -20,7 +20,7 @@ class Metric(ABC):
             conf_data = json.load(conf_file)
         host = conf_data[CONF_CONNECTION][CONF_CONN_HOST]
         port = conf_data[CONF_CONNECTION][CONF_CONN_PORT]
-        self.base = 'http://' + host + ':' + str(port) + '/data-analytics/meter/'
+        self.base = 'http://' + host + ':' + str(port) + '/meter/'
         self.conf_data = conf_data
         self.bp_path = conf_data[CONF_BLUEPRINT]
 
@@ -37,23 +37,24 @@ class Metric(ABC):
     def launch_sync_update(self):
         pass
 
-    def search(self, infra_id, op_id, metric, start_time, end_time):
-        path = self.base + infra_id
+    def search(self, vdc, op_id, metric, start_time, end_time):
+        vdc = vdc.split('.')[0]
+        path = self.base + vdc
         params = {
+            'vdcId': vdc,
             'operationID': op_id,
             'name': metric,
             'startTime': start_time,
             'endTime': end_time
         }
-        return requests.get(path, params)
+        return requests.get(path, params).json()
 
-    def __format_key(self, bp_id, vdc_inst, request_id, operation_id):
-        return bp_id + '-' + vdc_inst + '-' + request_id + '-' + operation_id
-
-    def write(self, bp_id, vdc_inst, request_id, operation_id, value, name, unit, hit_timestamp, computation_timestamp):
+    def write(self, vdc_inst, operation_id, value, name, unit, hit_timestamp, computation_timestamp):
+        vdc_inst = vdc_inst.split('.')[0]
         body = {
             'meter': {
-                'key': self.__format_key(bp_id, vdc_inst, request_id, operation_id),
+                'vdc': vdc_inst,
+                'operationId': operation_id,
                 'value': value,
                 'name': name,
                 'unit': unit,
