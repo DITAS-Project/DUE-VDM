@@ -1,6 +1,6 @@
 import time
 import threading
-from elastic_search.metric import Metric
+from metrics.metric import Metric
 from datetime import datetime
 import numpy as np
 
@@ -8,6 +8,7 @@ METRIC_NAME = 'Availability'
 
 VALUE_FIELD = 'value'
 UNIT_FIELD = 'unit'
+
 
 class Availability(Metric):
     def __init__(self, conf_path='conf/conf.json'):
@@ -19,9 +20,9 @@ class Availability(Metric):
             t0 = datetime.now()
             time.sleep(update_interval)
             t1 = datetime.now()
+            #TODO modificare metodo per la time window che non è conforme alle richeste
             timestamp, time_window = self.format_time_window(t0, t1)
             timestamp, time_window = '2016-06-20T22:28:46', '[2018-06-20T22:28:46 TO 2020-06-20T22:36:41]'  # TODO: delete this line
-            # TODO anzichè ciclare su servizi -> ciclare su infraID e metodi che si trovano nel file conf (momentaneo?)
             vdcs = self.read_vdcs_from_file()
             for vdc in vdcs:
                 methods = self.read_methods(vdc)
@@ -39,4 +40,3 @@ class Availability(Metric):
         for query in queries:
             update_interval = query['update_interval']
             threading.Thread(target=self.compute_metric, args=[update_interval]).start()
-            break  # TODO: delete this line

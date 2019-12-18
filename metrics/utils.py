@@ -2,16 +2,14 @@ import json
 import pytz
 from datetime import datetime, timedelta
 import dateutil.parser
-import os
 
 TEMP_CONF_FILE = 'conf/conf.json'
 TEMP_SERVICES_FILE = 'conf/services.json'
-TEMP_INDEX = "tubvdc-*"
 
 
 def format_time_window(t0, t1):
-    start_time = t0.strftime('%Y-%m-%dT%H:%M:%S')
-    end_time = t1.strftime('%Y-%m-%dT%H:%M:%S')
+    start_time = t0.isoformat()
+    end_time = t1.isoformat()
     return end_time, f'[{start_time} TO {end_time}]'
 
 

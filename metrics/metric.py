@@ -1,8 +1,8 @@
 import json
-import uuid
 from abc import ABC, abstractmethod
 import requests
 import os
+import lockfile
 
 
 OUTPUT_PATH = 'aggregated_metrics.json'
@@ -14,6 +14,8 @@ CONF_CONN_HOST = 'host'
 CONF_CONN_PORT = 'port'
 CONF_BLUEPRINT = 'blueprints_path'
 
+RESULTS = 'computation_results'
+
 class Metric(ABC):
     def __init__(self, conf_path):
         with open(conf_path) as conf_file:
@@ -23,6 +25,14 @@ class Metric(ABC):
         self.base = 'http://' + host + ':' + str(port) + '/meter/'
         self.conf_data = conf_data
         self.bp_path = conf_data[CONF_BLUEPRINT]
+        if not os.path.exists(OUTPUT_PATH):
+            body = {
+                RESULTS: []
+            }
+            file = open(OUTPUT_PATH, 'w+')
+            file.write(json.dumps(body))
+            file.close()
+
 
     def format_time_window(self, t0, t1):
         start_time = t0.strftime('%Y-%m-%dT%H:%M:%S')
@@ -62,10 +72,14 @@ class Metric(ABC):
                 'computation-timestamp': computation_timestamp
             }
         }
-        #TODO cambiare la modalità di salvataggio da W in Append
-        # Se viene appeso il file json non sarà più valido quindi bisogna aprire il file se esiste e aggiungere una nuova entry
-        with open(OUTPUT_PATH, 'w') as outfile:
-            json.dump(body, outfile, indent=4)
+
+        with lockfile.LockFile(OUTPUT_PATH):
+            file = open(OUTPUT_PATH, 'r+')
+            data = json.load(file)
+            data[RESULTS].append(body)
+            file.seek(0)
+            file.write(json.dumps(data, indent=4))
+            file.close()
 
     def read_vdcs_from_file(self):
         return os.listdir(self.bp_path)
